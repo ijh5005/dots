@@ -1,0 +1,134 @@
+body {
+	background-color: #111;
+	color: #405FE5;
+	font-family: 'Rubik Mono One', sans-serif;
+}
+
+#container {
+	align-items: center;
+	display: flex;
+	flex-direction: column;
+	margin: 0 auto;
+	width: 50em;
+}
+
+#name {
+	display: flex;
+	font-size: 7em;
+	justify-content: center;
+	width: 50rem;
+}
+
+#top_bar {
+	display: flex;
+	justify-content: space-around;
+	width: 50em;
+}
+
+#scoreboard,
+#timer,
+#reset {
+	border: 0.5em dashed black;
+	border-radius: 1.1em;
+	display: flex;
+	height: 6em;
+	width: 20em;
+}
+
+#me,
+#you {
+	border-right: 0.5em dashed black;
+	color: #14AFD2;
+	height: 6em;
+	width: 10em;
+}
+
+#you {
+	border: none;
+	color: #C12B5F;
+}
+
+#reset {
+	align-items: center;
+	border: 0.5em dashed;
+	display: flex;
+	justify-content: center;
+	margin: 1em auto;
+	width: 45rem;
+}
+
+#reset:hover {
+	color: red;
+}
+
+#me,
+#you,
+#timer {
+	display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.top_bar_text {
+	font-size: 4em;
+}
+
+#gameboard {
+	height: 48em;
+	width: 48em;
+	position: relative;
+	top: 4em;
+}
+
+#dots_board {
+	height: 54em;
+	width: 54em;
+}
+
+#dots_container {
+	position: absolute;
+    width: 98vw;
+    top: 29.1em;
+}
+
+#dots_board {
+	margin: 0 auto;
+}
+
+.grid,
+.dot {
+	float: left;
+}
+
+.grid {
+    border: 0.25em dashed #000;
+    float: left;
+    height: 5.5em;
+    width: 5.5em;
+
+    color: #DDD;
+    text-align: center;
+}
+
+.dot {
+    /*background-color: #405FE5;*/
+    background: radial-gradient(circle at 0.66em 0.66em, #405FE5, #000);
+    border-radius: 50px;
+    height: 2em;
+    margin: 2em 2em;
+    position: relative;
+    top: -3em;
+    width: 2em;
+
+    color: pink;
+    text-align: center;
+}
+
+.eight {
+	margin-right: 2em;
+}
+
+.nine {
+    margin-right: 0;
+    left: 1em;
+}
