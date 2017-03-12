@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html>
-<head> 
+<head>
 	<title>Dots Game</title>
 	<link href="https://fonts.googleapis.com/css?family=Rubik+Mono+One" rel="stylesheet">
 	<link rel="stylesheet" type="text/css" href="dots.css">
@@ -9,7 +9,7 @@
 	<script type="text/javascript" src="ngdots.js"></script>
 </head>
 <body>
-	<div id="container" ng-app="dots_game" ng-controller="dots_ctrl">
+	<div id="container" ng-cloak ng-app="dots_game" ng-controller="dots_ctrl">
 		<div id="name"><span>{{name}}</span></div>
 		<div id="reset"><span id="reset_text" class="top_bar_text" ng-click="reset()">RESET</span></div>
 		<div id="top_bar">
