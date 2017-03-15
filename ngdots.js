@@ -3,7 +3,7 @@
 var app = angular.module("dots_game", []);
 
 app.controller("dots_ctrl", ["$scope", "$rootScope", "$timeout", "$interval", "select", "makeLine", "fill", "$filter", function ($scope, $rootScope, $timeout, $interval, select, makeLine, fill, $filter) {
-	$scope.name = "Dots";
+	//application variables
 	$scope.my_score = "00";
 	$scope.your_score = "00";
 	$scope.timer_mins = "00";
@@ -14,25 +14,19 @@ app.controller("dots_ctrl", ["$scope", "$rootScope", "$timeout", "$interval", "s
 	$scope.first_selection;
 	$scope.second_selection;
 	$scope.turn = 0;
+
+/**********  reset button  **********/
 	$scope.reset = function () {
-		//reseet the reset text
+		//reset the reset button text
 		$("#reset_text").text("RESET");
-		//reset gameboard
+		//reset gameboard start indication (used to start the time clock)
 		$("#gameboard").removeClass("start");
-		//reset score
-		$scope.my_score = parseInt($scope.my_score); 
-		$scope.your_score = parseInt($scope.your_score);
-		$scope.my_score = 0;
-		$scope.your_score = 0;
-		$scope.my_score = $filter("double_digit")($scope.my_score);
-		$scope.your_score = $filter("double_digit")($scope.your_score);
+		//reset scores
+		$scope.my_score = $filter("reset_numbers")($scope.my_score);
+		$scope.your_score = $filter("reset_numbers")($scope.your_score);
 		//reset timer
-		$scope.timer_mins = parseInt($scope.timer_mins); 
-		$scope.timer_secs = parseInt($scope.timer_secs);
-		$scope.timer_mins = 0; 
-		$scope.timer_secs = 0;
-		$scope.timer_secs = $filter("double_digit")($scope.timer_secs);
-		$scope.timer_mins = $filter("double_digit")($scope.timer_mins);
+		$scope.timer_mins = $filter("reset_numbers")($scope.timer_mins); 
+		$scope.timer_secs = $filter("reset_numbers")($scope.timer_secs);
 		//reset background and borders and other classes
 		$(".grid").css("backgroundColor", "#111")
 				  .css("border", "0.25em dashed #000")
@@ -43,28 +37,46 @@ app.controller("dots_ctrl", ["$scope", "$rootScope", "$timeout", "$interval", "s
 	  	//reset dot classes
 	  	$(".dot").attr("class", "dot");
 	};
+/**********  complete: reset button  **********/
 
-	//start game when first dot is pressed
+
+
+/**********  start game when first dot is pressed  **********/
+	//update timer every sec
 	$interval(function () {
 		if( $("#gameboard").hasClass("start") ){
-			//update time clock
-			$scope.timer_mins = parseInt($scope.timer_mins); 
+			//update timer
+			//convert the number for incrementing
+			$scope.timer_mins = parseInt($scope.timer_mins);
 			$scope.timer_secs = parseInt($scope.timer_secs);
+			//increment secs by 1
 			$scope.timer_secs++;
+			//update clock if one min passes
 			if($scope.timer_secs == 60){
 				$scope.timer_secs = 0;
 				$scope.timer_mins++;
 			}
+			//turn them ino two digit numbers
 			$scope.timer_secs = $filter("double_digit")($scope.timer_secs);
 			$scope.timer_mins = $filter("double_digit")($scope.timer_mins);
 		}
 	}, 1000);
+/**********  complete: start game when first dot is pressed  **********/
+
+
 	
 	$interval(function () {
-		//$filter("update")($scope.my_score, me);
-		//watch for score change
+		//watch for score change and turn change
 		$scope.my_score = parseInt($scope.my_score); 
 		$scope.your_score = parseInt($scope.your_score);
+		//get the number of highlighted boxes for each players (indicated by number of "me" and "you" classes)
+		
+
+		//I am trying to filter the score update but we cant referent elements within the filters
+		//$scope.my_score = $filter("update_score")($scope.my_score, me);
+		
+
+
 		$scope.my_score = $(".grid[class*=me]").length;
 		$scope.your_score = $(".grid[class*=you]").length;
 		$scope.my_score = $filter("double_digit")($scope.my_score);
@@ -77,10 +89,28 @@ app.controller("dots_ctrl", ["$scope", "$rootScope", "$timeout", "$interval", "s
 			}
 		}
 	}, 1000);
+
+
 	//on dot click
 	$scope.select = function ($event) {
 		$("#gameboard").addClass("start");
 		$scope.count++;
+		//indicate the turn play with opacity
+
+		// if( $scope.count%2 == 1 ){
+		// 	console.log("you");
+		// 	$(".my_score").removeClass("opacity");
+		// 	$(".your_score").removeClass("opacity");
+		// 	$(".your_score").addClass("opacity");
+		// } else if ( $scope.count%2 == 0 ) {
+		// 	console.log("me");
+		// 	$(".my_score").removeClass("opacity");
+		// 	$(".your_score").removeClass("opacity");
+		// 	$(".my_score").addClass("opacity");
+		// }
+		////////////////////////////////////////
+
+
 		select.dot($event, $scope.count);
 		if($scope.count == 1){
 			$scope.first_selection = $event;
@@ -110,6 +140,48 @@ app.controller("dots_ctrl", ["$scope", "$rootScope", "$timeout", "$interval", "s
 		}
 	};
 }]);
+
+app.controller("line_click", ["$scope", "whos_turn", "$filter", function($scope, whos_turn, $filter){
+	$scope.track_turn = 0;
+	
+	//controller which edge is being clicked
+	$scope.edge_click = function ($event){
+		//get the position of the current grid square
+		var this_position = $filter("this")($event);
+		//get the position of the the adjadcent grid square from the line click
+		var position = $filter("find")($event);
+		//increment the child data attr to equal the number of lines the box has
+		var data = $filter("increment")(data, this_position);
+		//add the lines to the boxs
+		//$(".grid[data="+this_position+"]").children(".checker").attr("data", data);
+	}
+}]);
+
+app.controller("default", function ($scope) {
+	$scope.name = "Dots";
+	$scope.description = "play with a friend to see who can make the most squares";
+});
+
+app.controller("keep_score", function () {});
+
+app.service("whos_turn", function () {
+	this.is_it = function (x, cb) {
+		x = parseInt(x);
+		x++;
+		//track turn
+		if( x%2 == 0 ){
+			//when x is even it's the your turn
+			cb = "yours";
+		} else {
+			//when x is even it's my turn
+			cb = "mine's";
+		}
+	}
+});
+
+app.service("add_title", function () {
+
+});
 
 app.service("select", function ($timeout) {
 	this.dot = function ($event, count) {
@@ -248,10 +320,9 @@ app.service("makeLine", function ($filter, $timeout) {
 	}
 });
 
-app.service("fill", function ($timeout, $rootScope) {
+app.service("fill", function ($timeout) {
 	this.box = function (turn) {
 		if( turn%2 == 1 ){
-			$rootScope.your_score++;
 			$(".grid").children(".checker[data=4]").parent(".fill").css("background-color", "#C12B5F").addClass("you");
 		} else if ( turn%2 == 0 ) {
 			$(".grid").children(".checker[data=4]").parent(".fill").css("background-color", "#14AFD2").addClass("me");
@@ -290,4 +361,88 @@ app.filter("update", function ($filter) {
 	// 	x = $filter("double_digit")(x);
 	// 	return x;
 	// }
+});
+
+app.filter("this", function () {
+	return function ($event) {
+		var position = $event.target.attributes.data.nodeValue;
+		position = parseInt(position); 
+		return position;
+	}
+});
+
+app.filter("find", function() {
+	return function ($event) {
+		//////
+		var side;
+		if($event.offsetY < 10) {
+			//hightlight corresponding side
+			side = "top";
+			//console.log($scope.which_edge);
+		}
+		//if bottom edge is clicked highlight that edge and the edge of the box directly next to it
+		if($event.offsetY > 80) {
+			//hightlight corresponding side
+			side = "bottom";
+			//console.log($scope.which_edge);
+		}
+		//if right edge is clicked highlight that edge and the edge of the box directly next to it
+		if($event.offsetX > 80) {
+			//hightlight corresponding side
+			side = "right";
+			//console.log($scope.which_edge);
+		}
+		//if left edge is clicked highlight that edge and the edge of the box directly next to it
+		if($event.offsetX < 10) {
+			//hightlight corresponding side
+			side = "left";
+			//console.log($scope.which_edge);
+		}
+		//////
+		if (side == "top"){
+			//cache the top box data attr
+			var position = $event.target.attributes.data.nodeValue;
+			position = parseInt(position);
+			position = position - 8;
+			return position;
+		} else if (side == "right"){
+			//cache the right box data attr
+			var position = $event.target.attributes.data.nodeValue;
+			position = parseInt(position);
+			position = position + 1;
+			return position;
+		} else if (side == "bottom"){
+			//cache the bottom box data attr
+			var position = $event.target.attributes.data.nodeValue;
+			position = parseInt(position);
+			position = position + 8;
+			return position;
+		} else if (side == "left"){
+			//cache the left box data attr
+			var position = $event.target.attributes.data.nodeValue;
+			position = parseInt(position);
+			position = position - 1;
+			return position;
+		} else {
+			return "not a side";
+		}
+	};
+});
+
+app.filter("reset_numbers", function ($filter) {
+	return function (score) {
+		score = parseInt(score); 
+		score = 0;
+		score = $filter("double_digit")(score);
+		return score
+	}
+});
+
+app.filter("update_score", function ($filter) {
+	return function (score, person) {
+		score = parseInt(score); 
+		//get the number of highlighted boxes for each players (indicated by number of "me" and "you" classes)
+		score = $(".grid[class*="+person+"]").length;
+		score = $filter("double_digit")(score);
+	}
 });

@@ -10,17 +10,17 @@
 </head>
 <body>
 	<div id="container" ng-cloak ng-app="dots_game" ng-controller="dots_ctrl">
-		<div id="name"><span>{{name}}</span></div>
-		<div id="reset"><span id="reset_text" class="top_bar_text" ng-click="reset()">RESET</span></div>
+		<div id="name" ng-controller="default"><span>{{name}}</span></div>
+		<div id="reset" ng-click="reset()"><span id="reset_text" class="top_bar_text">RESET</span></div>
 		<div id="top_bar">
 			<div id="scoreboard">
-				<div id="me"><span class="top_bar_text">{{my_score}}</span></div>
-				<div id="you"><span class="top_bar_text">{{your_score}}</span></div>
+				<div id="me"><span class="my_score top_bar_text">{{my_score}}</span></div>
+				<div id="you"><span class="your_score top_bar_text opacity">{{your_score}}</span></div>
 			</div>
 			<div id="timer"><span class="top_bar_text">{{timer_mins}}:{{timer_secs}}</span></div>
 		</div>
 		<div id="gameboard">
-			<div class="grid" data="{{x}}" ng-repeat="x in grid">
+			<div class="grid" data="{{x}}" ng-repeat="x in grid" ng-controller="line_click" ng-click="edge_click($event)">
 				<div class="checker" data="0"></div>
 			</div>
 		</div>
