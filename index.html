@@ -7,10 +7,12 @@
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular.min.js"></script>
 	<script type="text/javascript" src="ngdots.js"></script>
+    
+    <meta name="viewport" content="width=500, initial-scale=1">
 </head>
 <body>
 	<div id="container" ng-cloak ng-app="dots_game" ng-controller="dots_ctrl">
-		<div id="name" ng-controller="default"><span>{{name}}</span></div>
+		<div id="name"><span>DOTS</span></div>
 		<div id="reset" ng-click="reset()"><span id="reset_text" class="top_bar_text">RESET</span></div>
 		<div id="top_bar">
 			<div id="scoreboard">
@@ -19,16 +21,17 @@
 			</div>
 			<div id="timer"><span class="top_bar_text">{{timer_mins}}:{{timer_secs}}</span></div>
 		</div>
-		<div id="gameboard">
-			<div class="grid" data="{{x}}" ng-repeat="x in grid" ng-controller="line_click" ng-click="edge_click($event)">
-				<div class="checker" data="0"></div>
-			</div>
-		</div>
-		<div id="dots_container">
-			<div id="dots_board">
-				<div class="dot" data="{{x}}" ng-repeat="x in dot" ng-click="select($event)"></div>
-			</div>
-		</div>
+        <div id="gameLiner">
+            <div id="gameboard">
+                <div class="grid" data="{{x}}" ng-repeat="x in grid" ng-controller="line_click" ng-click="edge_click($event)" style="background-color: rgb(255,255,255)">
+                    <div class="checker" data="0"></div>
+                    <div id="top" class="side" data="false"></div>
+                    <div id="right" class="side" data="false"></div>
+                    <div id="bottom" class="side" data="false"></div>
+                    <div id="left" class="side" data="false"></div>
+                </div>
+            </div>
+        </div>
 	</div>
 </body>
 </html>

@@ -2,185 +2,262 @@
 
 var app = angular.module("dots_game", []);
 
-app.controller("dots_ctrl", ["$scope", "$rootScope", "$timeout", "$interval", "select", "makeLine", "fill", "$filter", function ($scope, $rootScope, $timeout, $interval, select, makeLine, fill, $filter) {
+app.controller("dots_ctrl", ["$scope", "$rootScope", "$timeout", "$interval", "select", "fill", "$filter", "turn_update", function ($scope, $rootScope, $timeout, $interval, select, fill, $filter, turn_update) {
 	//application variables
-	$scope.my_score = "00";
-	$scope.your_score = "00";
-	$scope.timer_mins = "00";
-	$scope.timer_secs = "00";
-	$scope.grid = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63];
-	$scope.dot = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80];
-	$scope.count = 0;
-	$scope.first_selection;
-	$scope.second_selection;
-	$scope.turn = 0;
+		$scope.my_score = "00";
+		$scope.your_score = "00";
+		$scope.timer_mins = "00";
+		$scope.timer_secs = "00";
+		$scope.grid = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63];
+		$scope.count = 0;
+		$scope.first_selection;
+		$scope.second_selection;
+		$scope.turn = 0;
+		//used later to indicate whos turn it is
+		$scope.turn_player = 1;
+		$rootScope.whos_turn = 0;
 
-/**********  reset button  **********/
-	$scope.reset = function () {
-		//reset the reset button text
-		$("#reset_text").text("RESET");
-		//reset gameboard start indication (used to start the time clock)
-		$("#gameboard").removeClass("start");
-		//reset scores
-		$scope.my_score = $filter("reset_numbers")($scope.my_score);
-		$scope.your_score = $filter("reset_numbers")($scope.your_score);
-		//reset timer
-		$scope.timer_mins = $filter("reset_numbers")($scope.timer_mins); 
-		$scope.timer_secs = $filter("reset_numbers")($scope.timer_secs);
-		//reset background and borders and other classes
-		$(".grid").css("backgroundColor", "#111")
-				  .css("border", "0.25em dashed #000")
-				  .removeClass("you")
-				  .removeClass("me");
-	  	//reset the checkers
-	  	$(".checker").attr("data", 0);
-	  	//reset dot classes
-	  	$(".dot").attr("class", "dot");
-	};
-/**********  complete: reset button  **********/
+	/**********  reset button  **********/
+		$scope.reset = function () {
+			//reset the reset button text
+			$("#reset_text").text("RESET");
+			//reset gameboard start indication (used to start the time clock)
+			$("#gameboard").removeClass("start");
+			//reset scores
+			$scope.my_score = $filter("reset_numbers")($scope.my_score);
+			$scope.your_score = $filter("reset_numbers")($scope.your_score);
+			//reset timer
+			$scope.timer_mins = $filter("reset_numbers")($scope.timer_mins); 
+			$scope.timer_secs = $filter("reset_numbers")($scope.timer_secs);
+			//reset background and borders and other classes
+			$(".grid").removeClass("myPoint")
+                      .removeClass("yourPoint")
+					  .css("border", "0.15em dashed #DDD")
+					  .removeClass("you")
+					  .removeClass("me");
+		  	//reset the checkers
+		  	$(".checker").attr("data", 0);
+            //side checks
+            $(".side").attr("data", "false");
+		  	//reset turn opacity and turn variable
+			$(".my_score").css("opacity", "1");
+			$(".your_score").css("opacity", "0.4");
+			$scope.turn = 0;
+		};
+	/**********  complete: reset button  **********/
 
 
 
-/**********  start game when first dot is pressed  **********/
-	//update timer every sec
-	$interval(function () {
-		if( $("#gameboard").hasClass("start") ){
-			//update timer
-			//convert the number for incrementing
-			$scope.timer_mins = parseInt($scope.timer_mins);
-			$scope.timer_secs = parseInt($scope.timer_secs);
-			//increment secs by 1
-			$scope.timer_secs++;
-			//update clock if one min passes
-			if($scope.timer_secs == 60){
-				$scope.timer_secs = 0;
-				$scope.timer_mins++;
+	/**********  start game when first line is pressed  **********/
+		//update timer every sec
+		$interval(function () {
+			if( $("#gameboard").hasClass("start") ){
+				//update timer
+				//convert the number for incrementing
+				$scope.timer_mins = parseInt($scope.timer_mins);
+				$scope.timer_secs = parseInt($scope.timer_secs);
+				//increment secs by 1
+				$scope.timer_secs++;
+				//update clock if one min passes
+				if($scope.timer_secs == 60){
+					$scope.timer_secs = 0;
+					$scope.timer_mins++;
+				}
+				//turn them ino two digit numbers
+				$scope.timer_secs = $filter("double_digit")($scope.timer_secs);
+				$scope.timer_mins = $filter("double_digit")($scope.timer_mins);
 			}
-			//turn them ino two digit numbers
-			$scope.timer_secs = $filter("double_digit")($scope.timer_secs);
-			$scope.timer_mins = $filter("double_digit")($scope.timer_mins);
-		}
-	}, 1000);
-/**********  complete: start game when first dot is pressed  **********/
+		}, 1000);
+	/**********  complete: start game when first dot is pressed  **********/
 
+
+
+	/**********  score updater  **********/
+		$interval(function () {
+		//watch for score change
+			//get the number of highlighted boxes for each players (indicated by number of "me" and "you" classes)
+			$scope.my_score = $(".grid[class*=my]").length;
+			$scope.your_score = $(".grid[class*=your]").length;
+			//turn the scores to double digit numbers
+			$scope.my_score = $filter("double_digit")($scope.my_score);
+			$scope.your_score = $filter("double_digit")($scope.your_score);
+		//check for winner
+			if(($scope.your_score + $scope.my_score) == 64){
+				if($scope.your_score > $scope.my_score){
+					$("#reset_text").text("Red Wins!");
+				} else if($scope.your_score < $scope.my_score) {
+					$("#reset_text").text("Green Wins!");
+				} else {
+					$("#reset_text").text("Draw!");
+				}
+			}
+		}, 1000);
+	/**********  complete: score updater  **********/
 
 	
-	$interval(function () {
-		//watch for score change and turn change
-		$scope.my_score = parseInt($scope.my_score); 
-		$scope.your_score = parseInt($scope.your_score);
-		//get the number of highlighted boxes for each players (indicated by number of "me" and "you" classes)
-		
 
-		//I am trying to filter the score update but we cant referent elements within the filters
-		//$scope.my_score = $filter("update_score")($scope.my_score, me);
-		
-
-
-		$scope.my_score = $(".grid[class*=me]").length;
-		$scope.your_score = $(".grid[class*=you]").length;
-		$scope.my_score = $filter("double_digit")($scope.my_score);
-		$scope.your_score = $filter("double_digit")($scope.your_score);
-		if(($scope.your_score + $scope.my_score) == 64){
-			if($scope.your_score > $scope.my_score){
-				$("#reset_text").text("Red Wins!");
-			} else {
-				$("#reset_text").text("Green Wins!");
-			}
-		}
-	}, 1000);
-
-
-	//on dot click
-	$scope.select = function ($event) {
-		$("#gameboard").addClass("start");
-		$scope.count++;
-		//indicate the turn play with opacity
-
-		// if( $scope.count%2 == 1 ){
-		// 	console.log("you");
-		// 	$(".my_score").removeClass("opacity");
-		// 	$(".your_score").removeClass("opacity");
-		// 	$(".your_score").addClass("opacity");
-		// } else if ( $scope.count%2 == 0 ) {
-		// 	console.log("me");
-		// 	$(".my_score").removeClass("opacity");
-		// 	$(".your_score").removeClass("opacity");
-		// 	$(".my_score").addClass("opacity");
-		// }
-		////////////////////////////////////////
-
-
-		select.dot($event, $scope.count);
-		if($scope.count == 1){
-			$scope.first_selection = $event;
-		}
-		if($scope.count == 2){
-			$scope.second_selection = $event;
-			makeLine.on_box($event, $scope.first_selection, $scope.second_selection);
-			fill.box();
-			$timeout( function () {
-				$scope.count = 0;
-			}, 100);
-
-			//check to see who gets the point
-			$timeout( function () {
-				var firstValue = $scope.first_selection.target.attributes.data.nodeValue;
-				fill.box($scope.turn);
-
-				if($(".dot[data="+firstValue+"]").hasClass("wrong")) {						
-					//console.log("wrong");
-				} else {
-					$scope.turn++;
-					if ( $(".grid").hasClass("fill") ) {
-						$scope.turn--;
-					}
-				}
-			}, 200);
-		}
-	};
+    /**********  mantain grid box dimensions / update turn indicator opacity  **********/
+		$interval( function () {
+            var gameWidth = $("#gameboard").width();
+            var borderWidth = $(".grid").css("borderWidth");
+            var gridWidth = gameWidth * 0.125;
+			var gridHeight = gridWidth;
+            $(".grid").css("width", gridWidth);
+            $(".grid").css("height", gridHeight);
+            
+            //update turn
+            turn_update.opacity($rootScope.whos_turn);
+		}, 100);
+	/**********  complete: mantain grid box width relative to height  **********/
 }]);
 
-app.controller("line_click", ["$scope", "whos_turn", "$filter", function($scope, whos_turn, $filter){
-	$scope.track_turn = 0;
-	
+app.controller("line_click", ["$scope", "$rootScope", "$filter", "$timeout", "line_click_border", "line_click_border_right" , "line_click_border_left", "line_click_border_current", function($scope, $rootScope, $filter, $timeout, line_click_border, line_click_border_right , line_click_border_left, line_click_border_current){
+    //function to fill the boxes
+    $scope.fill = function (pos, posAdj) {
+        if($rootScope.whos_turn%2 == 0){
+            //fill the adjacent box if the child .check[data=4]
+            if($(".grid[data="+posAdj+"]").children(".checker").attr("data") == 4){
+                $scope.fillAdj(posAdj, "yourPoint");
+            }
+            //fill in the box by adding the class yourPoint (check ss for reference)
+            $(".grid[data=" + pos + "]").addClass("yourPoint");
+            //reset the turn so the player that scored can go again
+            $rootScope.whos_turn--;
+        } else {
+            //fill the adjacent box if the child .check[data=4]
+            if($(".grid[data="+posAdj+"]").children(".checker").attr("data") == 4){
+                $scope.fillAdj(posAdj, "myPoint");
+            }
+            //fill in the box by adding the class myPoint (check ss for reference)
+            $(".grid[data=" + pos + "]").addClass("myPoint");
+            //fill in the box by adding the class yourPoint (check ss for reference)
+            $rootScope.whos_turn--;
+        }
+    };
+    //function to fill the boxes
+    $scope.fillAdj = function (pos, scored) {
+        $(".grid[data=" + pos + "]").addClass(scored);
+    };
 	//controller which edge is being clicked
 	$scope.edge_click = function ($event){
+        //start the game clock
+		$("#gameboard").addClass("start");
 		//get the position of the current grid square
 		var this_position = $filter("this")($event);
-		//get the position of the the adjadcent grid square from the line click
-		var position = $filter("find")($event);
-		//increment the child data attr to equal the number of lines the box has
-		var data = $filter("increment")(data, this_position);
-		//add the lines to the boxs
-		//$(".grid[data="+this_position+"]").children(".checker").attr("data", data);
+		//get the position of the the adjacent grid square from the line click
+		var adjacent_position = $filter("find")($event);
+		//used to check if the side is already highlighted
+		var side_check = $(".grid[data="+this_position+"]").children("#"+adjacent_position.side+"").attr("data");
+		var side_check_other = $(".grid[data="+adjacent_position.data+"]").children("#"+adjacent_position.opposite+"").attr("data");
+		//increment .checker data if side isn't already highlighted
+		if( side_check == "false" ){
+            //change turn when line is clicked (even#:1st player tun, odd#:2nd plyer turn) -> the expection to turn changes are handled in the dots_ctrl
+		    $rootScope.whos_turn++;
+			//cache increment number for this box
+			var data = $filter("increment_value")(this_position);
+            console.log(data);
+            //cache increment number for adjacent box
+			var dataAdj = $filter("increment_value")(adjacent_position.data);
+			//increment the .checker data attr to indicate the number of lines the boxes have
+			$(".grid[data="+this_position+"]").children(".checker").attr("data", data);
+            //increment the .checker data attr for adjacent line to indicate the number of lines the boxes have
+			$(".grid[data="+adjacent_position.data+"]").children(".checker").attr("data", dataAdj);
+			//set the side data to false to prevent future .checker changes from this side
+			$(".grid[data="+this_position+"]").children("#"+adjacent_position.side+"").attr("data", "true");
+			//the box on the current box always occurs. next 2 parameters are not need
+			line_click_border_current.change(adjacent_position.side, this_position);
+			//define the right and left side boxes
+			var rightSideBoxes = this_position == 7 || this_position == 15 || this_position == 23 || this_position == 31 || this_position == 39 || this_position == 47 || this_position == 55 || this_position == 63;
+		    var leftSideBoxes = this_position == 0 || this_position == 8 || this_position == 16 || this_position == 24 || this_position == 32 || this_position == 40 || this_position == 48 || this_position == 56;
+			//only include right/left options on other box if the box is not on the edge
+			if(rightSideBoxes){
+				//if box if on the right edge -> these are all the right edge boxes
+				line_click_border_left.change(adjacent_position.opposite, adjacent_position.data);
+			} else if(leftSideBoxes){
+				//if box if on the left edge -> these are all the left edge boxes
+				line_click_border_right.change(adjacent_position.opposite, adjacent_position.data);
+			} else {
+				//if box is in the middle -> these are all the middle boxes
+				line_click_border.change(adjacent_position.opposite, adjacent_position.data);
+			}
+            
+            //fill this box if the child .check[data=4]
+            if($(".grid[data="+this_position+"]").children(".checker").attr("data") == 4){
+                $scope.fill(this_position, adjacent_position.data);
+            } else if ($(".grid[data="+adjacent_position.data+"]").children(".checker").attr("data") == 4) {
+                if($rootScope.whos_turn%2 == 0){
+                    //fill the adjacent box
+                    $scope.fillAdj(adjacent_position.data, "yourPoint");
+                    //reset the turn so the player that scored can go again
+                    $rootScope.whos_turn--;
+                } else {
+                    //fill the adjacent box
+                    $scope.fillAdj(adjacent_position.data, "myPoint");
+                    //fill in the box by adding the class yourPoint (check ss for reference)
+                    $rootScope.whos_turn--;
+                }
+            }
+		}
 	}
 }]);
 
-app.controller("default", function ($scope) {
-	$scope.name = "Dots";
-	$scope.description = "play with a friend to see who can make the most squares";
-});
-
-app.controller("keep_score", function () {});
-
-app.service("whos_turn", function () {
-	this.is_it = function (x, cb) {
-		x = parseInt(x);
-		x++;
-		//track turn
-		if( x%2 == 0 ){
-			//when x is even it's the your turn
-			cb = "yours";
-		} else {
-			//when x is even it's my turn
-			cb = "mine's";
+app.service("line_click_border_current", function () {
+    //change corresponding border color
+	this.change = function (side, position) {
+		if (side == "top"){
+			$(".grid[data="+position+"]").css("borderTopColor", "blue");
+		} else if (side == "right") {
+			$(".grid[data="+position+"]").css("borderRightColor", "blue");
+		} else if (side == "bottom") {
+			$(".grid[data="+position+"]").css("borderBottomColor", "blue");
+		} else if (side == "left") {
+			$(".grid[data="+position+"]").css("borderLeftColor", "blue");
 		}
-	}
+	};
 });
 
-app.service("add_title", function () {
+app.service("line_click_border", function () {
+    //change corresponding border color
+	this.change = function (side, position) {
+		if (side == "top"){
+			$(".grid[data="+position+"]").css("borderTopColor", "blue");
+		} else if (side == "right") {
+			$(".grid[data="+position+"]").css("borderRightColor", "blue");
+		} else if (side == "bottom") {
+			$(".grid[data="+position+"]").css("borderBottomColor", "blue");
+		} else if (side == "left") {
+			$(".grid[data="+position+"]").css("borderLeftColor", "blue");
+		}
+	};
+});
 
+app.service("line_click_border_right", function () {
+    //change corresponding border color
+	this.change = function (side, position) {
+		if (side == "top"){
+			$(".grid[data="+position+"]").css("borderTopColor", "blue");
+		} else if (side == "bottom") {
+			$(".grid[data="+position+"]").css("borderBottomColor", "blue");
+		} else if (side == "left") {
+			$(".grid[data="+position+"]").css("borderLeftColor", "blue");
+		} else {
+			console.log("on edge");
+		}
+	};
+});
+
+app.service("line_click_border_left", function () {
+	this.change = function (side, position, thisPosition, thisSide) {
+		if (side == "top"){
+			$(".grid[data="+position+"]").css("borderTopColor", "blue");
+		} else if (side == "right") {
+			$(".grid[data="+position+"]").css("borderRightColor", "blue");
+		} else if (side == "bottom") {
+			$(".grid[data="+position+"]").css("borderBottomColor", "blue");
+		} else {
+			console.log("on edge");
+		}
+	};
 });
 
 app.service("select", function ($timeout) {
@@ -188,10 +265,14 @@ app.service("select", function ($timeout) {
 		if(count == 1){
 			//get data value of target
 			var target = $event.target.attributes.data.nodeValue;
+			//change the color of the dot -> indicates that it has been selected
 			$(".dot[data="+target+"]").css("background", "radial-gradient(circle at 0.66em 0.66em, #01D7D0, #000)");
 		} else if (count == 2) {
+			//get data value of target
 			var target = $event.target.attributes.data.nodeValue;
+			//change the color of the dot -> indicates that it has been selected
 			$(".dot[data="+target+"]").css("background", "radial-gradient(circle at 0.66em 0.66em, #01D7D0, #000)");
+			//reset the color of the dots back to original color
 			$timeout( function () {
 				$(".dot").css("background", "radial-gradient(circle at 0.66em 0.66em, #405FE5, #000)");
 			}, 500);
@@ -199,135 +280,35 @@ app.service("select", function ($timeout) {
 	};
 });
 
-app.service("makeLine", function ($filter, $timeout) {
-	this.on_box = function ($event, first, second) {
-		var firstValue = first.target.attributes.data.nodeValue;
-		var secondValue = second.target.attributes.data.nodeValue;
-		var difference = Math.abs(parseInt(firstValue) - parseInt(secondValue));
-		var addition = parseInt(firstValue) + parseInt(secondValue);
-		var smaller_number;
-		//vertical reference used to make side bars
-		var vertical = [
-			{first:1,second:0},
-			{first:2,second:1},
-			{first:3,second:2},
-			{first:4,second:3},
-			{first:5,second:4},
-			{first:6,second:5},
-			{first:7,second:6},
-			{first:8,second:7},
-			{first:17,second:16}
-		];
-		//horizontal reference used to make top/bottom bars
-		var horizontal = [
-			{second:0},
-			{first:9,second:1},
-			{first:10,second:2},
-			{first:11,second:3},
-			{first:12,second:4},
-			{first:13,second:5},
-			{first:14,second:6},
-			{first:15,second:7},
-			{first:16},
-		];
+app.service("fill", function ($timeout) {
+//	this.box = function (turn) {
+//		if( turn%2 == 1 ){
+//			$(".grid").children(".checker[data=4]").parent(".fill").css("background-color", "#C12B5F").addClass("you");
+//		} else if ( turn%2 == 0 ) {
+//			$(".grid").children(".checker[data=4]").parent(".fill").css("background-color", "#14AFD2").addClass("me");
+//		}
+//	};
+});
 
-		//check to see if dots have already been used
-		if($(".dot[data="+firstValue+"]").hasClass(secondValue) ||	$(".dot[data="+secondValue+"]").hasClass(firstValue)){
-			$(".dot[data="+firstValue+"]").css("background", "radial-gradient(circle at 0.66em 0.66em, red, #000)").addClass("wrong");
-			$(".dot[data="+secondValue+"]").css("background", "radial-gradient(circle at 0.66em 0.66em, red, #000)").addClass("wrong");
-			$timeout( function () {
-				$(".dot[data="+firstValue+"]").removeClass("wrong");
-				$(".dot[data="+secondValue+"]").removeClass("wrong");
-			}, 1000);
-		} else {
-			$(".dot[data="+firstValue+"]").addClass(secondValue);
-			$(".dot[data="+secondValue+"]").addClass(firstValue);
-			if((addition == 17 || addition == 35 || addition == 53 || addition == 71 
-			|| addition == 89 || addition == 107 || addition == 125 || addition == 143)
-			&& difference == 1){
-				console.log("not a match");
-			} else {
-				if( (difference == 1) || (difference == 9) ){
-					//find smaller number
-					if ( ( parseInt(firstValue) - parseInt(secondValue) ) < 0 ){
-						smaller_number = firstValue;
-					} else {
-						smaller_number = secondValue;
-					}
-					//find the position array index to use as reference					
-					var row = Math.floor(smaller_number/9);
-					//continue finding line to make
-					if( difference == 1){
-						if(smaller_number < 9){
-							//if the box is on the top edge...
-							var bottom_square = smaller_number - horizontal[row].second;
-							$(".grid[data="+bottom_square+"]").css("borderTopColor", "#405FE5");
-							//increment the child data -> when it reaches 4 the box will change color
-							var data = $filter("increment")(data, bottom_square);
-							//set the new data value
-							$(".grid[data="+bottom_square+"]").children(".checker").attr("data", data);
-						} else if(smaller_number > 71){
-							//if the box is on the bottom edge...
-							var top_square = smaller_number - horizontal[row].first;
-							$(".grid[data="+top_square+"]").css("borderBottomColor", "#405FE5");
-							//increment the child data -> when it reaches 4 the box will change color
-							var data = $filter("increment")(data, top_square);
-							//set the new data value
-							$(".grid[data="+top_square+"]").children(".checker").attr("data", data);
-						} else {
-							//if the box is in the middle
-							var top_square = smaller_number - horizontal[row].first;
-							var bottom_square = smaller_number - horizontal[row].second;
-							$(".grid[data="+bottom_square+"]").css("borderTopColor", "#405FE5");
-							$(".grid[data="+top_square+"]").css("borderBottomColor", "#405FE5");
-							//increment the child data -> when it reaches 4 the box will change color
-							var data = $filter("increment")(data, bottom_square);
-							var data2 = $filter("increment")(data, top_square);
-							$(".grid[data="+bottom_square+"]").children(".checker").attr("data", data);
-							$(".grid[data="+top_square+"]").children(".checker").attr("data", data2);
-						}
-					} else {					
-						if(smaller_number%9 == 0){
-							//if the box is on the left edge
-							var right_square = smaller_number - vertical[row].second;
-							$(".grid[data="+right_square+"]").css("borderLeftColor", "#405FE5");
-							//increment the child data -> when it reaches 4 the box will change color
-							var data = $filter("increment")(data, right_square);
-							$(".grid[data="+right_square+"]").children(".checker").attr("data", data);
-						} else if(smaller_number%9 == 8){
-							//if the box is on the right edge
-							var left_square = smaller_number - vertical[row].first;
-							$(".grid[data="+left_square+"]").css("borderRightColor", "#405FE5");
-							//increment the child data -> when it reaches 4 the box will change color
-							var data = $filter("increment")(data, left_square);
-							$(".grid[data="+left_square+"]").children(".checker").attr("data", data);
-						} else {
-							//if the box is in the middle
-							var left_square = smaller_number - vertical[row].first;
-							var right_square = smaller_number - vertical[row].second;
-							$(".grid[data="+left_square+"]").css("borderRightColor", "#405FE5");
-							$(".grid[data="+right_square+"]").css("borderLeftColor", "#405FE5");
-							//increment the child data -> when it reaches 4 the box will change color
-							var data = $filter("increment")(data, left_square);
-							var data2 = $filter("increment")(data, right_square);
-							$(".grid[data="+left_square+"]").children(".checker").attr("data", data);
-							$(".grid[data="+right_square+"]").children(".checker").attr("data", data2);		
-						}
-					}
-				}
-			}
+app.service("turn_update", function () {
+	this.opacity = function (turn_number){
+		if (turn_number%2 == 1){
+			$(".my_score").css("opacity", 0.4);
+			$(".your_score").css("opacity", 1);
+		} else if (turn_number%2 == 0){
+			$(".my_score").css("opacity", 1);
+			$(".your_score").css("opacity", 0.4);
 		}
 	}
 });
 
-app.service("fill", function ($timeout) {
-	this.box = function (turn) {
-		if( turn%2 == 1 ){
-			$(".grid").children(".checker[data=4]").parent(".fill").css("background-color", "#C12B5F").addClass("you");
-		} else if ( turn%2 == 0 ) {
-			$(".grid").children(".checker[data=4]").parent(".fill").css("background-color", "#14AFD2").addClass("me");
-		}
-	};
+app.filter("increment_value", function ($timeout) {
+	return function (position) {
+        var x = $(".grid[data="+position+"]").children(".checker").attr("data");
+        x = parseInt(x);
+        x++;
+        return x;
+	}
 });
 
 app.filter("increment", function ($timeout) {
@@ -352,15 +333,6 @@ app.filter("double_digit", function () {
 		}
 		return x;
 	};
-})
-
-app.filter("update", function ($filter) {
-	// return function (x, person) {
-	// 	x = parseInt(x); 
-	// 	x = $(".grid[class*=me]").length;
-	// 	x = $filter("double_digit")(x);
-	// 	return x;
-	// }
 });
 
 app.filter("this", function () {
@@ -373,58 +345,61 @@ app.filter("this", function () {
 
 app.filter("find", function() {
 	return function ($event) {
-		//////
 		var side;
+        //cache var to account for the screen size when offsets are compared
+        var gameWidth = $("#gameboard").width();
+        var gridWidthComparer = gameWidth * 0.125 * 0.8;
+        //check the side for a click based off of offset and .grid box size
 		if($event.offsetY < 10) {
 			//hightlight corresponding side
 			side = "top";
-			//console.log($scope.which_edge);
 		}
 		//if bottom edge is clicked highlight that edge and the edge of the box directly next to it
-		if($event.offsetY > 80) {
+		if($event.offsetY > gridWidthComparer) {
 			//hightlight corresponding side
 			side = "bottom";
-			//console.log($scope.which_edge);
 		}
 		//if right edge is clicked highlight that edge and the edge of the box directly next to it
-		if($event.offsetX > 80) {
+		if($event.offsetX > gridWidthComparer) {
 			//hightlight corresponding side
 			side = "right";
-			//console.log($scope.which_edge);
 		}
 		//if left edge is clicked highlight that edge and the edge of the box directly next to it
 		if($event.offsetX < 10) {
 			//hightlight corresponding side
 			side = "left";
-			//console.log($scope.which_edge);
 		}
-		//////
+		///////////////////////////////////
 		if (side == "top"){
 			//cache the top box data attr
 			var position = $event.target.attributes.data.nodeValue;
 			position = parseInt(position);
 			position = position - 8;
-			return position;
+			var object = { side: "top", data: position, opposite: "bottom" };
+			return object;
 		} else if (side == "right"){
 			//cache the right box data attr
 			var position = $event.target.attributes.data.nodeValue;
 			position = parseInt(position);
 			position = position + 1;
-			return position;
+			var object = { side: "right", data: position, opposite: "left" };
+			return object;
 		} else if (side == "bottom"){
 			//cache the bottom box data attr
 			var position = $event.target.attributes.data.nodeValue;
 			position = parseInt(position);
 			position = position + 8;
-			return position;
+			var object = { side: "bottom", data: position, opposite: "top" };
+			return object;
 		} else if (side == "left"){
 			//cache the left box data attr
 			var position = $event.target.attributes.data.nodeValue;
 			position = parseInt(position);
 			position = position - 1;
-			return position;
+			var object = { side: "left", data: position, opposite: "right" };
+			return object;
 		} else {
-			return "not a side";
+			return -1;
 		}
 	};
 });
@@ -435,14 +410,5 @@ app.filter("reset_numbers", function ($filter) {
 		score = 0;
 		score = $filter("double_digit")(score);
 		return score
-	}
-});
-
-app.filter("update_score", function ($filter) {
-	return function (score, person) {
-		score = parseInt(score); 
-		//get the number of highlighted boxes for each players (indicated by number of "me" and "you" classes)
-		score = $(".grid[class*="+person+"]").length;
-		score = $filter("double_digit")(score);
 	}
 });

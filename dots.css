@@ -3,13 +3,9 @@
 }
 
 body {
-	background-color: #111;
+	background-color: #fff;
 	color: #405FE5;
 	font-family: 'Rubik Mono One', sans-serif;
-}
-
-.opacity {
-	/*opacity: 0.4;*/
 }
 
 #container {
@@ -22,14 +18,9 @@ body {
 
 #name,
 description {
-	display: flex;
+	display: none;
 	font-size: 7em;
-	justify-content: center;
 	width: 50rem;
-}
-
-#description {
-
 }
 
 #top_bar {
@@ -41,8 +32,6 @@ description {
 #scoreboard,
 #timer,
 #reset {
-	border: 0.5em dashed black;
-	border-radius: 1.1em;
 	display: flex;
 	height: 6em;
 	width: 20em;
@@ -50,20 +39,26 @@ description {
 
 #me,
 #you {
-	border-right: 0.5em dashed black;
 	color: #14AFD2;
 	height: 6em;
 	width: 10em;
 }
 
 #you {
-	border: none;
 	color: #C12B5F;
+}
+
+.my_score {
+	opacity: 1;
+}
+
+.your_score {
+	opacity: 0.4;
 }
 
 #reset {
 	align-items: center;
-	border: 0.5em dashed;
+    border-bottom: 1px solid;
 	display: flex;
 	justify-content: center;
 	margin: 1em auto;
@@ -86,64 +81,83 @@ description {
 	font-size: 4em;
 }
 
+#gameLiner {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
 #gameboard {
 	height: 48em;
-	width: 48em;
-	position: relative;
-	top: 4em;
+    margin-bottom: 1em;
+	position: absolute;
+    top: 17em;
+    width: 48em;
 	z-index: 1;
 }
 
-#dots_board {
-	height: 54em;
-	width: 54em;
-}
-
-#dots_container {
-	position: absolute;
-    width: 98vw;
-    top: 29.1em;
-}
-
-#dots_board {
-	margin: 0 auto;
-}
-
-.grid,
-.dot {
-	float: left;
-}
-
 .grid {
-    border: 0.25em dashed #000;
+    border: 0.15em dashed #DDD;
+    box-sizing: border-box;
     float: left;
-    height: 5.5em;
-    width: 5.5em;
-
-    color: #DDD;
-    text-align: center;
+    outline-offset: -0.15em;
 }
 
-.dot {
-    /*background-color: #405FE5;*/
-    background: radial-gradient(circle at 0.66em 0.66em, #405FE5, #000);
-    border-radius: 50px;
-    height: 2em;
-    margin: 2em 2em;
-    position: relative;
-    top: -3em;
-    width: 2em;
-    z-index: 2;
-
-    color: pink;
-    text-align: center;
+.myPoint {
+    background: rgba(147,206,222,1);
+    background: -moz-radial-gradient(center, ellipse cover, rgba(147,206,222,1) 0%, rgba(117,189,209,1) 41%, rgba(73,165,191,1) 100%);
+    background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(0%, rgba(147,206,222,1)), color-stop(41%, rgba(117,189,209,1)), color-stop(100%, rgba(73,165,191,1)));
+    background: -webkit-radial-gradient(center, ellipse cover, rgba(147,206,222,1) 0%, rgba(117,189,209,1) 41%, rgba(73,165,191,1) 100%);
+    background: -o-radial-gradient(center, ellipse cover, rgba(147,206,222,1) 0%, rgba(117,189,209,1) 41%, rgba(73,165,191,1) 100%);
+    background: -ms-radial-gradient(center, ellipse cover, rgba(147,206,222,1) 0%, rgba(117,189,209,1) 41%, rgba(73,165,191,1) 100%);
+    background: radial-gradient(ellipse at center, rgba(147,206,222,1) 0%, rgba(117,189,209,1) 41%, rgba(73,165,191,1) 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#93cede', endColorstr='#49a5bf', GradientType=1 );
 }
 
-.eight {
-	margin-right: 2em;
+.yourPoint {
+    background: rgba(248,80,50,1);
+    background: -moz-radial-gradient(center, ellipse cover, rgba(248,80,50,1) 0%, rgba(241,111,92,1) 0%, rgba(246,41,12,1) 51%, rgba(240,47,23,1) 71%, rgba(231,56,39,1) 100%);
+    background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(0%, rgba(248,80,50,1)), color-stop(0%, rgba(241,111,92,1)), color-stop(51%, rgba(246,41,12,1)), color-stop(71%, rgba(240,47,23,1)), color-stop(100%, rgba(231,56,39,1)));
+    background: -webkit-radial-gradient(center, ellipse cover, rgba(248,80,50,1) 0%, rgba(241,111,92,1) 0%, rgba(246,41,12,1) 51%, rgba(240,47,23,1) 71%, rgba(231,56,39,1) 100%);
+    background: -o-radial-gradient(center, ellipse cover, rgba(248,80,50,1) 0%, rgba(241,111,92,1) 0%, rgba(246,41,12,1) 51%, rgba(240,47,23,1) 71%, rgba(231,56,39,1) 100%);
+    background: -ms-radial-gradient(center, ellipse cover, rgba(248,80,50,1) 0%, rgba(241,111,92,1) 0%, rgba(246,41,12,1) 51%, rgba(240,47,23,1) 71%, rgba(231,56,39,1) 100%);
+    background: radial-gradient(ellipse at center, rgba(248,80,50,1) 0%, rgba(241,111,92,1) 0%, rgba(246,41,12,1) 51%, rgba(240,47,23,1) 71%, rgba(231,56,39,1) 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f85032', endColorstr='#e73827', GradientType=1 );
 }
 
-.nine {
-    margin-right: 0;
-    left: 1em;
+@media screen and (max-width: 800px) {
+    #container,
+    #reset,
+    #top_bar {
+        width: 90%;
+    }
+    
+    #reset {
+        height: 4em;
+    }
+    
+    .top_bar_text {
+        font-size: 2em;
+    }
+    
+    #me, #you {
+        height: 4em;
+        width: 4em;
+    }
+    
+    #scoreboard, #timer {
+        height: 4em;
+        width: 10em;
+    }
+    
+    #gameboard {
+        top: 12em;
+        width: 94%;
+    }
+    
+    .grid {
+        border: 0.15em dashed #DDD;
+        box-sizing: border-box;
+        outline-offset: -0.15em;
+    }
 }
