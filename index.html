@@ -1,25 +1,27 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Dots Game</title>
-	<link href="https://fonts.googleapis.com/css?family=Rubik+Mono+One" rel="stylesheet">
+	<title>Box Game</title>
+    <link href="https://fonts.googleapis.com/css?family=Candal" rel="stylesheet">
 	<link rel="stylesheet" type="text/css" href="dots.css">
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular.min.js"></script>
 	<script type="text/javascript" src="ngdots.js"></script>
     
-    <meta name="viewport" content="width=500, initial-scale=1">
 </head>
 <body>
-	<div id="container" ng-cloak ng-app="dots_game" ng-controller="dots_ctrl">
-		<div id="name"><span>DOTS</span></div>
+	<div id="container" ng-cloak ng-app="box_game" ng-controller="box_ctrl">
 		<div id="reset" ng-click="reset()"><span id="reset_text" class="top_bar_text">RESET</span></div>
 		<div id="top_bar">
 			<div id="scoreboard">
 				<div id="me"><span class="my_score top_bar_text">{{my_score}}</span></div>
 				<div id="you"><span class="your_score top_bar_text opacity">{{your_score}}</span></div>
 			</div>
-			<div id="timer"><span class="top_bar_text">{{timer_mins}}:{{timer_secs}}</span></div>
+			<div id="timer">
+                <span class="top_bar_text">
+                    <span>{{timer_mins}}:{{timer_secs}}</span>
+                </span>
+            </div>
 		</div>
         <div id="gameLiner">
             <div id="gameboard">
